@@ -28,6 +28,7 @@ If you are new to Qubex, start with [Choose where to start](../user-guide/gettin
 - [Measurement config](measurement/measurement_config.ipynb)
 - [Measurement session](measurement/measurement_client.ipynb)
 - [Loopback capture](measurement/capture_loopback.ipynb)
+- [DSP classification](measurement/mid_circuit_dsp_classification.ipynb)
 - [Measurement sweep builder](measurement/sweep_measurement_builder.ipynb)
 - [Sweep measurement executor](measurement/sweep_measurement_executor.ipynb)
 

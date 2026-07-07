@@ -255,8 +255,9 @@ def test_ramsey_experiment_discretization_uses_measurement_sampling_period() -> 
 def test_rabi_experiment_builds_control_pulse_with_measurement_sampling_period() -> (
     None
 ):
-    """Given measurement dt, when building a Rabi sweep, then control pulses use that sampling period."""
+    """Given measurement dt, when building a Rabi sweep, then pulse dt and tqdm option are used."""
     target = "Q00"
+    captured: dict[str, object] = {}
     service = cast(Any, object.__new__(MeasurementService))
     service.__dict__["_ctx"] = SimpleNamespace(
         targets={target: SimpleNamespace(frequency=5.0)},
@@ -266,16 +267,18 @@ def test_rabi_experiment_builds_control_pulse_with_measurement_sampling_period()
     def _obtain_reference_points(
         self: MeasurementService,
         targets: list[str],
-        **_: object,
+        **kwargs: object,
     ) -> dict[str, dict[str, complex]]:
+        captured["reference_kwargs"] = kwargs
         return {"iq": dict.fromkeys(targets, 0j)}
 
     def _sweep_parameter(
         self: MeasurementService,
         *,
         sequence: Any,
-        **_: object,
+        **kwargs: object,
     ) -> Any:
+        captured["sweep_enable_tqdm"] = kwargs["enable_tqdm"]
         schedule = sequence(8.0)
         pulse_array = schedule.get_sequence(target, copy=False)
         waveforms = pulse_array.get_flattened_waveforms(apply_frame_shifts=True)
@@ -293,4 +296,9 @@ def test_rabi_experiment_builds_control_pulse_with_measurement_sampling_period()
             n_shots=1,
             shot_interval=1.0,
             plot=False,
+            enable_tqdm=True,
         )
+
+    reference_kwargs = cast(dict[str, object], captured["reference_kwargs"])
+    assert "enable_tqdm" not in reference_kwargs
+    assert captured["sweep_enable_tqdm"] is True

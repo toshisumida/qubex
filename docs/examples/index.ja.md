@@ -28,6 +28,7 @@ Qubex が初めてなら、まず [始め方を選ぶ](../user-guide/getting-sta
 - [Measurement config](measurement/measurement_config.ipynb)
 - [Measurement session](measurement/measurement_client.ipynb)
 - [Loopback capture](measurement/capture_loopback.ipynb)
+- [DSP classification](measurement/mid_circuit_dsp_classification.ipynb)
 - [Measurement sweep builder](measurement/sweep_measurement_builder.ipynb)
 - [Sweep measurement executor](measurement/sweep_measurement_executor.ipynb)
 

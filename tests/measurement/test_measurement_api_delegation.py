@@ -1508,8 +1508,9 @@ def test_execute_initializes_optional_flags_with_execute_defaults(
             config: MeasurementConfig,
             quel1_options: Quel1MeasurementOptions | None = None,
         ) -> MeasurementResult:
-            _ = (schedule, quel1_options)
+            _ = schedule
             called["config"] = config
+            called["run_quel1_options"] = quel1_options
             return MeasurementResultConverter.from_multiple(
                 multiple,
                 measurement_config=_make_config(),
@@ -1552,6 +1553,8 @@ def test_execute_initializes_optional_flags_with_execute_defaults(
     config = called["config"]
     assert config.time_integration is True
     assert config.state_classification is False
+    assert config.classification_source is None
+    assert called["run_quel1_options"] is None
 
 
 def test_run_measurement_delegates_to_executor(

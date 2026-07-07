@@ -89,6 +89,10 @@ class _MeasurementServiceStub:
         self.calls.append(("state_tomography", kwargs))
         return "state_tomography_result"
 
+    def obtain_rabi_params(self, **kwargs: Any) -> str:
+        self.calls.append(("obtain_rabi_params", kwargs))
+        return "obtain_rabi_params_result"
+
 
 class _ExperimentContextStub:
     def __init__(self) -> None:
@@ -450,6 +454,8 @@ def test_execute_delegates_new_shot_arguments_to_measurement_service() -> None:
                 "n_shots": 256,
                 "shot_interval": 120.0,
                 "time_integration": None,
+                "classification_source": None,
+                "classification_sigma_multiplier": None,
                 "readout_amplitudes": None,
                 "readout_duration": None,
                 "readout_pre_margin": None,
@@ -462,8 +468,8 @@ def test_execute_delegates_new_shot_arguments_to_measurement_service() -> None:
                 "enable_dsp_demodulation": None,
                 "enable_dsp_sum": None,
                 "enable_dsp_classification": None,
-                "line_param0": None,
-                "line_param1": None,
+                "classification_line_param0": None,
+                "classification_line_param1": None,
                 "reset_awg_and_capunits": None,
                 "plot": None,
             },
@@ -493,6 +499,8 @@ def test_execute_delegates_time_integration_to_measurement_service() -> None:
                 "n_shots": None,
                 "shot_interval": None,
                 "time_integration": False,
+                "classification_source": None,
+                "classification_sigma_multiplier": None,
                 "readout_amplitudes": None,
                 "readout_duration": None,
                 "readout_pre_margin": None,
@@ -505,8 +513,8 @@ def test_execute_delegates_time_integration_to_measurement_service() -> None:
                 "enable_dsp_demodulation": None,
                 "enable_dsp_sum": None,
                 "enable_dsp_classification": None,
-                "line_param0": None,
-                "line_param1": None,
+                "classification_line_param0": None,
+                "classification_line_param1": None,
                 "reset_awg_and_capunits": None,
                 "plot": None,
             },
@@ -534,6 +542,8 @@ def test_measure_delegates_legacy_shot_arguments_to_measurement_service() -> Non
                 "n_shots": None,
                 "shot_interval": None,
                 "time_integration": None,
+                "classification_source": None,
+                "classification_sigma_multiplier": None,
                 "readout_amplitudes": None,
                 "readout_duration": None,
                 "readout_pre_margin": None,
@@ -545,8 +555,8 @@ def test_measure_delegates_legacy_shot_arguments_to_measurement_service() -> Non
                 "enable_dsp_demodulation": None,
                 "enable_dsp_sum": None,
                 "enable_dsp_classification": None,
-                "line_param0": None,
-                "line_param1": None,
+                "classification_line_param0": None,
+                "classification_line_param1": None,
                 "reset_awg_and_capunits": None,
                 "plot": None,
                 "shots": 64,
@@ -579,6 +589,8 @@ def test_measure_delegates_time_integration_to_measurement_service() -> None:
                 "n_shots": None,
                 "shot_interval": None,
                 "time_integration": True,
+                "classification_source": None,
+                "classification_sigma_multiplier": None,
                 "readout_amplitudes": None,
                 "readout_duration": None,
                 "readout_pre_margin": None,
@@ -590,8 +602,8 @@ def test_measure_delegates_time_integration_to_measurement_service() -> None:
                 "enable_dsp_demodulation": None,
                 "enable_dsp_sum": None,
                 "enable_dsp_classification": None,
-                "line_param0": None,
-                "line_param1": None,
+                "classification_line_param0": None,
+                "classification_line_param1": None,
                 "reset_awg_and_capunits": None,
                 "plot": None,
             },
@@ -933,6 +945,43 @@ def test_sweep_parameter_delegates_legacy_shot_arguments_to_measurement_service(
                 "yaxis_type": None,
                 "shots": 32,
                 "interval": 44.0,
+            },
+        )
+    ]
+
+
+def test_obtain_rabi_params_delegates_enable_tqdm_to_measurement_service() -> None:
+    """Given Rabi tqdm option, when called, then it delegates as a Rabi option."""
+    exp = object.__new__(Experiment)
+    measurement_stub = _MeasurementServiceStub()
+    exp.__dict__["_measurement_service"] = measurement_stub
+
+    result = exp.obtain_rabi_params(
+        targets=["Q00", "Q01"],
+        time_range=[0.0, 8.0],
+        n_shots=32,
+        plot=False,
+        enable_tqdm=True,
+        simultaneous=True,
+    )
+
+    assert result == "obtain_rabi_params_result"
+    assert measurement_stub.calls == [
+        (
+            "obtain_rabi_params",
+            {
+                "targets": ["Q00", "Q01"],
+                "time_range": [0.0, 8.0],
+                "amplitudes": None,
+                "frequencies": None,
+                "is_damped": None,
+                "fit_threshold": None,
+                "n_shots": 32,
+                "shot_interval": None,
+                "plot": False,
+                "enable_tqdm": True,
+                "store_params": None,
+                "simultaneous": True,
             },
         )
     ]
