@@ -133,7 +133,7 @@ def test_factory_rejects_frequency_overrides() -> None:
 
 
 def test_model_populates_return_items_from_flags() -> None:
-    """Given legacy booleans, model should infer return items."""
+    """Given DSP single-shot classification flags, model should infer state returns."""
     config = MeasurementConfig(
         n_shots=4,
         shot_interval=100.0,
@@ -142,10 +142,8 @@ def test_model_populates_return_items_from_flags() -> None:
         state_classification=True,
     )
 
-    assert tuple(config.return_items) == (
-        ReturnItem.IQ_SERIES,
-        ReturnItem.STATE_SERIES,
-    )
+    assert config.primary_return_item == ReturnItem.STATE_SERIES
+    assert tuple(config.return_items) == (ReturnItem.STATE_SERIES,)
 
 
 def test_model_rejects_return_items_conflicting_with_flags() -> None:

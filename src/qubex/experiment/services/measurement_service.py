@@ -166,7 +166,7 @@ class MeasurementService:
         dict[str, tuple[float, float, float]],
     ]:
         """Resolve per-readout DSP line pairs from stored GMM centers and sigmas."""
-        from qubex.contrib.gmm_linear_classification import (
+        from qubex.measurement._gmm_linear_classification import (
             build_gmm_linear_line_param_pair,
         )
 

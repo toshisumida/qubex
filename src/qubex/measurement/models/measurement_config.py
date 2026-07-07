@@ -92,7 +92,7 @@ class MeasurementConfig(Model):
 
     def _primary_return_item(self) -> ReturnItem:
         """Return the primary return item inferred from legacy mode flags."""
-        if self.classification_source == "gmm_linear":
+        if self._uses_dsp_state_series():
             return ReturnItem.STATE_SERIES
         match (self.shot_averaging, self.time_integration):
             case (True, True):
@@ -129,3 +129,11 @@ class MeasurementConfig(Model):
         if self.state_classification:
             allowed.add(ReturnItem.STATE_SERIES)
         return allowed
+
+    def _uses_dsp_state_series(self) -> bool:
+        """Return whether the backend primary payload is DSP-classified states."""
+        return self.classification_source == "gmm_linear" or (
+            self.state_classification
+            and not self.shot_averaging
+            and self.time_integration
+        )
