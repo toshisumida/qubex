@@ -627,6 +627,7 @@ class Quel1BackendController(BackendController):
         *,
         port: int | tuple[int, int],
         channel: int,
+        cnco_freq_hz: int | None = None,
         fnco_freq_hz: int | None = None,
     ) -> None:
         """
@@ -640,6 +641,8 @@ class Quel1BackendController(BackendController):
             Port number.
         channel : int
             Channel number.
+        cnco_freq_hz : int | None, optional
+            CNCO frequency in Hz.
         fnco_freq_hz : int | None, optional
             FNCO frequency in Hz.
         """
@@ -647,6 +650,7 @@ class Quel1BackendController(BackendController):
             box_name=box_name,
             port=port,
             channel=channel,
+            cnco_freq_hz=cnco_freq_hz,
             fnco_freq_hz=fnco_freq_hz,
         )
 
@@ -656,6 +660,7 @@ class Quel1BackendController(BackendController):
         *,
         port: int | tuple[int, int],
         runit: int,
+        cnco_freq_hz: int | None = None,
         fnco_freq_hz: int | None = None,
     ) -> None:
         """
@@ -669,6 +674,8 @@ class Quel1BackendController(BackendController):
             Port number.
         runit : int
             Runit number.
+        cnco_freq_hz : int | None, optional
+            CNCO frequency in Hz.
         fnco_freq_hz : int | None, optional
             FNCO frequency in Hz.
         """
@@ -676,6 +683,7 @@ class Quel1BackendController(BackendController):
             box_name=box_name,
             port=port,
             runit=runit,
+            cnco_freq_hz=cnco_freq_hz,
             fnco_freq_hz=fnco_freq_hz,
         )
 
