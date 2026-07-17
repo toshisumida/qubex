@@ -126,6 +126,23 @@ class Quel1MeasurementBackendAdapter:
             constraint_profile = MeasurementConstraintProfile.quel1()
         self._constraint_profile = constraint_profile
 
+    def _convert_classification_lines_to_backend_iq(
+        self,
+        lines: dict[str, tuple[float, float, float]] | None,
+    ) -> dict[str, tuple[float, float, float]] | None:
+        """Convert Qubex classification lines to the backend I/Q coordinates."""
+        if lines is None:
+            return None
+        converted = dict(lines)
+        for target, (a, b, c) in lines.items():
+            try:
+                sideband = self._experiment_system.get_target(target).sideband
+            except KeyError:
+                sideband = "U"
+            if sideband == "L":
+                converted[target] = (a, -b, c)
+        return converted
+
     def validate_schedule(self, schedule: MeasurementSchedule) -> None:
         """Validate QuEL-1 specific pulse/capture constraints."""
         profile = self._constraint_profile
@@ -338,6 +355,8 @@ class Quel1MeasurementBackendAdapter:
                 line_param1,
                 line_scale,
             )
+        line_param0 = self._convert_classification_lines_to_backend_iq(line_param0)
+        line_param1 = self._convert_classification_lines_to_backend_iq(line_param1)
         classification_lines = _build_classification_lines(line_param0, line_param1)
 
         payload = Quel1ExecutionPayload(

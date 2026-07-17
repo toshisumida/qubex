@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 from typing import Any, cast
 
 from qxpulse import Blank, PulseSchedule
@@ -20,6 +21,14 @@ class _BackendControllerStub:
     def get_resource_map(self, targets: list[str]) -> dict[str, list[dict[str, str]]]:
         self.targets = targets
         return {target: [{}] for target in targets}  # shape is irrelevant here
+
+
+class _ExperimentSystemStub:
+    def __init__(self, sideband_by_target: dict[str, str]) -> None:
+        self.sideband_by_target = sideband_by_target
+
+    def get_target(self, target: str) -> SimpleNamespace:
+        return SimpleNamespace(sideband=self.sideband_by_target[target])
 
 
 def _make_config(interval: float) -> MeasurementConfig:
@@ -219,13 +228,16 @@ def test_build_execution_request_keeps_classification_off_without_options(
 
 
 def test_build_execution_request_scales_gmm_linear_line_constants(monkeypatch) -> None:
-    """Given GMM-derived normalized lines, backend payload should use e7 line units."""
+    """Lower-sideband GMM lines should use backend coordinates and e7 units."""
     backend = _BackendControllerStub()
     adapter = cast(
         Any,
         Quel1MeasurementBackendAdapter(
             backend_controller=cast(Any, backend),
-            experiment_system=cast(Any, object()),
+            experiment_system=cast(
+                Any,
+                _ExperimentSystemStub(sideband_by_target={"RQ00": "L"}),
+            ),
         ),
     )
 
@@ -264,20 +276,20 @@ def test_build_execution_request_scales_gmm_linear_line_constants(monkeypatch) -
         schedule=schedule,
         config=config,
         quel1_options=Quel1MeasurementOptions(
-            classification_line_param0={"RQ00": (1.0, 0.0, -0.25)},
-            classification_line_param1={"RQ00": (1.0, 0.0, -0.5)},
+            classification_line_param0={"RQ00": (1.0, 2.0, -0.25)},
+            classification_line_param1={"RQ00": (1.0, -3.0, -0.5)},
         ),
     )
 
     payload = request.payload
     assert payload.classification_lines["RQ00"].line0 == (
         1.0,
-        0.0,
+        -2.0,
         -(1 << 16),
     )
     assert payload.classification_lines["RQ00"].line1 == (
         1.0,
-        0.0,
+        3.0,
         -(1 << 17),
     )
 
@@ -291,7 +303,10 @@ def test_build_execution_request_scales_gmm_linear_line_constants_without_demodu
         Any,
         Quel1MeasurementBackendAdapter(
             backend_controller=cast(Any, backend),
-            experiment_system=cast(Any, object()),
+            experiment_system=cast(
+                Any,
+                _ExperimentSystemStub(sideband_by_target={"RQ00": "U"}),
+            ),
         ),
     )
 
@@ -331,19 +346,19 @@ def test_build_execution_request_scales_gmm_linear_line_constants_without_demodu
         config=config,
         quel1_options=Quel1MeasurementOptions(
             demodulation=False,
-            classification_line_param0={"RQ00": (1.0, 0.0, -0.25)},
-            classification_line_param1={"RQ00": (1.0, 0.0, -0.5)},
+            classification_line_param0={"RQ00": (1.0, 2.0, -0.25)},
+            classification_line_param1={"RQ00": (1.0, -3.0, -0.5)},
         ),
     )
 
     payload = request.payload
     assert payload.classification_lines["RQ00"].line0 == (
         1.0,
-        0.0,
+        2.0,
         -(1 << 30),
     )
     assert payload.classification_lines["RQ00"].line1 == (
         1.0,
-        0.0,
+        -3.0,
         -(1 << 31),
     )
